@@ -1,7 +1,7 @@
 // GPU renderer: runs the 3D layer of a topic in a real browser (WebGL on the GPU) and encodes it with WebCodecs.
 // Usage (from any blank https page):  const m = await import(BASE + 'gpu_run.js'); m.run({topic, lang, w, h, name})
 // Progress: window.__gpu = {state, frame, total, ms}. Output: downloads <name>.mp4 (3D only, no captions/audio).
-export async function run({ topic, lang = 'en', w = 1080, h = 1920, name, fps = 30, bitrate = 16e6, from = 0, to = 0 }) {
+export async function run({ topic, lang = 'en', w = 1080, h = 1920, name, fps = 30, bitrate = 10e6, from = 0, to = 0 }) {
   const BASE = new URL('./', import.meta.url).href;
   window.__gpu = { state: 'loading', frame: 0, total: 0 };
   history.replaceState(null, '', `/?topic=${topic}&w=${w}&h=${h}&lang=${lang}`);

@@ -57,8 +57,8 @@ export function makeSky(top, bot, r = 300) {
 // stable star sky (texture on a sphere: no per-pixel twinkling like tiny points)
 export function starSphere(r = 1500, n = 2600) {
   const tex = canvasTex(4096, 2048, (c, w, h) => { c.fillStyle = '#000'; c.fillRect(0, 0, w, h); for (let i = 0; i < n; i++) { const x = rnd(i, 1) * w, y = Math.acos(1 - 2 * rnd(i, 2)) / Math.PI * h, s = 1.2 + rnd(i, 3) * 2.2; c.fillStyle = `rgba(255,255,255,${.5 + rnd(i, 4) * .5})`; c.beginPath(); c.arc(x, y, s, 0, 6.29); c.fill(); } });
-  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 48, 24), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, depthWrite: false, fog: false, transparent: true, blending: THREE.AdditiveBlending }));
-  m.renderOrder = -9; m.frustumCulled = false; return m;
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 48, 24), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, depthWrite: false, fog: false }));
+  m.renderOrder = -10; m.frustumCulled = false; return m;
 }
 // simple instanced particle field helper (points)
 export function points(n, color, size, opts = {}) {
