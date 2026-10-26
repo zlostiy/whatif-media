@@ -25,7 +25,7 @@ canvas{display:block}
 #black{position:absolute;inset:0;background:#000;opacity:0}`;
 const FONT = f => `https://cdn.jsdelivr.net/npm/@fontsource/rubik@5.1.0/files/rubik-${f}-normal.woff2`;
 async function dataUrl(u) { const b = await fetch(u).then(r => r.blob()); return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); }); }
-export async function run({ base, topic, lang = 'en', w = 1080, h = 1920, name, fps = 30, bitrate = 12e6 }) {
+export async function run({ base, topic, lang = 'en', w = 1080, h = 1920, name, fps = 30, bitrate = 8e6 }) {
   window.__gpu = { state: 'loading', frame: 0, total: 0 };
   history.replaceState(null, '', `/?topic=${topic}&w=${w}&h=${h}&lang=${lang}`);
   const fonts = {}; for (const f of ['cyrillic-900', 'cyrillic-700', 'latin-900', 'latin-700']) fonts[f] = await dataUrl(FONT(f));
