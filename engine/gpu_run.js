@@ -1,8 +1,8 @@
 // GPU renderer: runs the 3D layer of a topic in a real browser (WebGL on the GPU) and encodes it with WebCodecs.
 // Usage (from any blank https page):  const m = await import(BASE + 'gpu_run.js'); m.run({topic, lang, w, h, name})
 // Progress: window.__gpu = {state, frame, total, ms}. Output: downloads <name>.mp4 (3D only, no captions/audio).
-export async function run({ topic, lang = 'en', w = 1080, h = 1920, name, fps = 30, bitrate = 10e6, from = 0, to = 0 }) {
-  const BASE = new URL('./', import.meta.url).href;
+export async function run({ topic, lang = 'en', w = 1080, h = 1920, name, fps = 30, bitrate = 10e6, from = 0, to = 0, base }) {
+  const BASE = base || new URL('./', import.meta.url).href;
   window.__gpu = { state: 'loading', frame: 0, total: 0 };
   history.replaceState(null, '', `/?topic=${topic}&w=${w}&h=${h}&lang=${lang}`);
   document.head.innerHTML = '<meta charset="utf-8"><style>html,body{margin:0;background:#000;overflow:hidden}#wrap{position:relative;overflow:hidden}.ov{display:none}</style>';
@@ -13,7 +13,8 @@ export async function run({ topic, lang = 'en', w = 1080, h = 1920, name, fps = 
   window.DATA = await fetch(BASE + `topics/${topic}/data_${lang}.json`).then(r => r.json());
   window.RENDER_MODE = 'gpu';
   const { Muxer, ArrayBufferTarget } = await import('https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/+esm');
-  await import(BASE + `topics/${topic}/scene.js`);
+  const src = await fetch(BASE + `dist/${topic}.js`).then(r => r.text());
+  await import(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
   await window.ready;
   const canvas = document.getElementById('c');
   const N = Math.ceil(window.TOTAL * fps), a = from, b = to ? Math.min(N, to) : N;
