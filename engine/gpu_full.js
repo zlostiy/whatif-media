@@ -54,9 +54,9 @@ export async function run({ base, topic, lang = 'en', w = 1080, h = 1920, name, 
   for (let f = 0; f < N; f++) {
     window.setTime(f / fps);
     cx.drawImage(gl, 0, 0, w, h);
-    const html = ov.outerHTML;
+    const html = new XMLSerializer().serializeToString(ov);
     if (html !== lastHtml) {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="position:relative;width:${w}px;height:${h}px;overflow:hidden">${STYLE}${html.replace(/<canvas[^>]*><\/canvas>/g, '')}</div></foreignObject></svg>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="position:relative;width:${w}px;height:${h}px;overflow:hidden">${STYLE}${html.replace(/<canvas[^>]*?(\/>|><\/canvas>)/g, '')}</div></foreignObject></svg>`;
       const img = new Image(); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); await img.decode(); lastImg = img; lastHtml = html; window.__gpu.ovDraws++;
     }
     cx.drawImage(lastImg, 0, 0, w, h);
