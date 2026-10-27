@@ -50,8 +50,8 @@ function town(s, lt, k, t) {
   W.cars.forEach(c => c.userData.glass.color.set(0x8fd8ff)); W.pipeLow.rotation.set(0, 0, 0); W.pipeLow.position.set(3.6, 1.3, 7.0); W.setWheat(0); W.groundM.color.set(0x8fcf6a);
   W.rainMat.color.set(0xdff6ff); W.rainMat.blending = THREE.AdditiveBlending; W.rainMat.opacity = .85;
   if (sc === 'hook') { rain.n = Math.floor(lerp(40, 900, sm(.1, .9, k))); people(t, Z.street, 'look', k); cp = V(-12, lerp(9, 2.6, eio(k)), -1.5); ct = V(0, 2.2, 4.6); gl = sm(.5, 1, k) * .5; }
-  else if (sc === 'hair') { rain = { n: 500, len: 3, spd: 1.4, wob: .9, th: .7, box: 14 }; W.rainMat.opacity = .5; cp = V(1.5, 2.0, -1.2); ct = V(0, 2.4, 4.5); gl = .5; }
-  else if (sc === 'size') { rain = { n: 160, len: 4.5, spd: .7, wob: .5, th: .8, box: 8 }; W.rainMat.opacity = .5; cp = V(.4, 1.7, .8); ct = V(0, 1.9, 4); gl = .4; }
+  else if (sc === 'hair') { rain = { n: 260, len: 3, spd: 1.4, wob: .5, th: 2.2, box: 14, keep: true }; W.rainMat.opacity = .5; cp = V(1.5, 2.0, -1.2); ct = V(0, 2.4, 4.5); gl = .5; }
+  else if (sc === 'size') { rain = { n: 120, len: 4.5, spd: .7, wob: .3, th: 2.4, box: 8, keep: true }; W.rainMat.opacity = .5; cp = V(.4, 1.7, .8); ct = V(0, 1.9, 4); gl = .4; }
   else if (sc === 'run') { rain.n = 1300; people(t, Z.street, 'run', k); const cx = -2 + k * 3; cp = V(cx + 6, 2.0, -.8); ct = V(cx, 1.3, 4.6); gl = .8; }
   else if (sc === 'planes' || sc === 'grounded') { const o = Z.airport; rain.n = 1500; rain.box = 60; cp = o.clone().add(sc === 'planes' ? V(-30 + k * 10, 6, 22) : V(30 - k * 12, 9, 26)); ct = o.clone().add(V(0, 3, -18)); gl = 0; }
   else if (sc === 'cars') { const c = W.cars[4]; const cw = c.getWorldPosition(V(0, 0, 0)); const cl = sm(.15, .85, k); W.cars.forEach(cc => cc.userData.glass.color.copy(col(0x8fd8ff, 0xe8ecf0, cl))); rain.n = 900; cp = cw.clone().add(V(lerp(4.2, 3.0, eio(k)), 1.9, 2.2)); ct = cw.clone().add(V(.3, .9, 0)); gl = 1; gc = cw; }

@@ -136,11 +136,13 @@ function makeSky(top, bot, r = 300) {
 function points(n, color, size, opts = {}) {
   const g = new THREE.BufferGeometry(), p = new Float32Array(n * 3);
   g.setAttribute("position", new THREE.BufferAttribute(p, 3));
-  const m = new THREE.PointsMaterial(Object.assign({ map: dotTex, color, size, transparent: true, opacity: 1, depthWrite: false }, opts));
+  const { keep, ...mo } = opts;
+  const m = new THREE.PointsMaterial(Object.assign({ map: dotTex, color, size, transparent: true, opacity: 1, depthWrite: false }, mo));
   const o = new THREE.Points(g, m);
   o.frustumCulled = false;
   o.pos = p;
   o.upd = () => g.attributes.position.needsUpdate = true;
+  if (!opts.keep) o.layers.set(31);
   return o;
 }
 function makeHuman(o = {}) {
@@ -506,6 +508,7 @@ function start(topic) {
     $("flash").style.opacity = fl;
     $("flash").style.background = fx.flc || "#fff";
     $("black").style.opacity = bk;
+    if (OV) window.__ovSig = [full.innerHTML, cards.innerHTML, capEl.innerHTML, badge.style.cssText, s.badge, s.loc, capEl.style.cssText, (bp2 > 0 && bp2 < 1 ? bp2 : 0).toFixed(3), fl.toFixed(3), fx.flc || "", bk.toFixed(3)].join("|");
   };
   window.ready = document.fonts.ready.then(() => Promise.all([...document.fonts].map((f) => f.load().catch(() => 0)))).then(() => {
     window.setTime(0);
@@ -840,7 +843,7 @@ function makeTown(o = {}) {
   }
   add(vc, vg, T(8022634), [0, 21, -60], [0, 0, 0], null, 0.05);
   add(vc, Cyl(6, 6, 0.5, 28), B(16738858), [0, 41.9, -60], [0, 0, 0], null, 0);
-  W3.plume = points(1600, 6972528, 15, { opacity: 0.85, depthWrite: false });
+  W3.plume = points(1600, 6972528, 15, { opacity: 0.85, depthWrite: false, keep: true });
   W3.plume.material.sizeAttenuation = true;
   vc.add(W3.plume);
   W3.lava = points(300, 16742954, 2.2, { blending: THREE.AdditiveBlending });
@@ -885,6 +888,11 @@ function makeTown(o = {}) {
   W3.updRain = (t, c, o2 = {}) => {
     const n = Math.min(RN, o2.n ?? RN), BX = o2.box ?? 34, len = o2.len ?? 0.9, spd = o2.spd ?? 18, tilt = o2.tilt ?? 0, wob = o2.wob ?? 0, th = o2.th ?? 1;
     W3.rain.count = n;
+    if (!o2.keep) {
+      W3.rain.count = 0;
+      return;
+    }
+    W3.rainMat.blending = THREE.NormalBlending;
     for (let i = 0; i < n; i++) {
       let x = rnd(i, 21) * BX, y = rnd(i, 22) * BX - t * spd * (0.8 + rnd(i, 23) * 0.4), z = rnd(i, 24) * BX;
       x += tilt * y + Math.sin(t * 1.3 + i) * wob;

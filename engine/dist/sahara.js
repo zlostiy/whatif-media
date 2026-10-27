@@ -165,11 +165,13 @@ function starSphere(r = 1500, n = 2600) {
 function points(n, color, size, opts = {}) {
   const g = new THREE.BufferGeometry(), p = new Float32Array(n * 3);
   g.setAttribute("position", new THREE.BufferAttribute(p, 3));
-  const m = new THREE.PointsMaterial(Object.assign({ map: dotTex, color, size, transparent: true, opacity: 1, depthWrite: false }, opts));
+  const { keep, ...mo } = opts;
+  const m = new THREE.PointsMaterial(Object.assign({ map: dotTex, color, size, transparent: true, opacity: 1, depthWrite: false }, mo));
   const o = new THREE.Points(g, m);
   o.frustumCulled = false;
   o.pos = p;
   o.upd = () => g.attributes.position.needsUpdate = true;
+  if (!opts.keep) o.layers.set(31);
   return o;
 }
 function makeHuman(o = {}) {
@@ -525,6 +527,7 @@ function start(topic) {
     $("flash").style.opacity = fl;
     $("flash").style.background = fx2.flc || "#fff";
     $("black").style.opacity = bk;
+    if (OV) window.__ovSig = [full.innerHTML, cards.innerHTML, capEl.innerHTML, badge.style.cssText, s.badge, s.loc, capEl.style.cssText, (bp2 > 0 && bp2 < 1 ? bp2 : 0).toFixed(3), fl.toFixed(3), fx2.flc || "", bk.toFixed(3)].join("|");
   };
   window.ready = document.fonts.ready.then(() => Promise.all([...document.fonts].map((f) => f.load().catch(() => 0)))).then(() => {
     window.setTime(0);

@@ -128,7 +128,7 @@ export function makeTown(o = {}) {
   const vc = G(sc, ZONES.volcano.toArray()); W.volcano = vc;
   const vg = new THREE.CylinderGeometry(6, 60, 42, 28, 6, true); { const p = vg.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), y = p.getY(i); const n = 1 + (fbm(x * .05 + 3, z * .05) - .5) * .35 * (y < 20 ? 1 : 0); p.setX(i, x * n); p.setZ(i, z * n); } vg.computeVertexNormals(); }
   add(vc, vg, T(0x7a6a6a), [0, 21, -60], [0, 0, 0], null, .05); add(vc, Cyl(6, 6, .5, 28), B(0xff6a2a), [0, 41.9, -60], [0, 0, 0], null, 0);
-  W.plume = points(1600, 0x6a6470, 15, { opacity: .85, depthWrite: false }); W.plume.material.sizeAttenuation = true; vc.add(W.plume);
+  W.plume = points(1600, 0x6a6470, 15, { opacity: .85, depthWrite: false, keep: true }); W.plume.material.sizeAttenuation = true; vc.add(W.plume);
   W.lava = points(300, 0xff7a2a, 2.2, { blending: THREE.AdditiveBlending }); vc.add(W.lava);
   // --- airport ---
   const ap = G(sc, ZONES.airport.toArray()); W.airport = ap;
@@ -144,6 +144,8 @@ export function makeTown(o = {}) {
   // --- falling stuff: generic instanced streaks around camera ---
   const RN = 2200; const rainGeo = new THREE.BoxGeometry(.02, 1, .02); W.rainMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .7, depthWrite: false, fog: true }); W.rain = new THREE.InstancedMesh(rainGeo, W.rainMat, RN); W.rain.frustumCulled = false; sc.add(W.rain);
   W.updRain = (t, c, o = {}) => { const n = Math.min(RN, o.n ?? RN), BX = o.box ?? 34, len = o.len ?? .9, spd = o.spd ?? 18, tilt = o.tilt ?? 0, wob = o.wob ?? 0, th = o.th ?? 1; W.rain.count = n;
+    if (!o.keep) { W.rain.count = 0; return; } // falling droplets read as flicker: only kept for slow close-ups
+    W.rainMat.blending = THREE.NormalBlending;
     for (let i = 0; i < n; i++) { let x = rnd(i, 21) * BX, y = rnd(i, 22) * BX - t * spd * (.8 + rnd(i, 23) * .4), z = rnd(i, 24) * BX; x += tilt * y + Math.sin(t * 1.3 + i) * wob; const X = ((x - c.x) % BX + BX) % BX - BX / 2 + c.x, Y = ((y - c.y) % BX + BX) % BX - BX / 2 + c.y, Z = ((z - c.z) % BX + BX) % BX - BX / 2 + c.z; dmy.position.set(X, Y, Z); dmy.rotation.set(wob ? Math.sin(i + t) * .5 : 0, i, -tilt + (wob ? Math.cos(i * 1.7 + t) * .6 : 0)); dmy.scale.set(th, len * (.7 + rnd(i, 25) * .6), th); dmy.updateMatrix(); W.rain.setMatrixAt(i, dmy.matrix); }
     W.rain.instanceMatrix.needsUpdate = true; };
   W.glints = points(1500, 0xe8fbff, .1, { blending: THREE.AdditiveBlending, opacity: 0 }); sc.add(W.glints);
