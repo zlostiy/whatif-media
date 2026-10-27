@@ -83,7 +83,7 @@ const man3 = RUN({ backpack: undefined, cap: undefined, neckFlap: false, top: 0x
 function placeMan(J, p, ry) { J.root.position.copy(p); J.root.rotation.set(0, ry, 0); }
 function desert(s, lt, k, t) {
   const sc = s.scene; let tod = 'day', cp, ct, storm = 0, pp, f = { mouth: 'line', blink: blink(t) }, ps;
-  others.forEach(o => o.root.visible = false); mound.visible = false; sos.visible = fireG.visible = false; smoke.material.opacity = 0; flare.material.opacity = 0; heli.visible = jet.visible = false; liz.visible = snake.visible = false; girl.root.visible = false; flagG.visible = ['flag', 'leave', 'sos', 'storm2'].includes(sc); man.root.visible = true; tracks.visible = sc === 'tracks';
+  others.forEach(o => o.root.visible = false); mound.visible = false; bush.visible = sc !== 'run' && sc !== 'storm'; sos.visible = fireG.visible = false; smoke.material.opacity = 0; flare.material.opacity = 0; heli.visible = jet.visible = false; liz.visible = snake.visible = false; girl.root.visible = false; flagG.visible = ['flag', 'leave', 'sos', 'storm2'].includes(sc); man.root.visible = true; tracks.visible = sc === 'tracks';
   const runAt = (x0, z0, dir, sp = 3) => { const x = x0 + Math.cos(dir) * lt * sp, z = z0 - Math.sin(dir) * lt * sp; const p = at(x, z, .95 + bob(t)); placeMan(man, p, dir + Math.PI / 2); return p; };
   if (sc === 'run') { tod = 'hot'; const p = runAt(-6, 4, .15, 3.4); ps = runPose(t); f = { mouth: 'open', open: .45, brow: .2, blink: blink(t) };
     others.forEach((o, i) => { o.root.visible = true; const q = at(p.x - 4 - i * 3, p.z + 2 + i * 1.5, .95 + bob(t + i)); placeMan(o, q, .15 + Math.PI / 2); pose(o, runPose(t + i * .7)); face(o, { mouth: 'open', open: .4 }); });

@@ -822,6 +822,7 @@ function desert(s, lt, k, t) {
   let tod = "day", cp, ct, storm = 0, pp, f = { mouth: "line", blink: blink(t) }, ps;
   others.forEach((o) => o.root.visible = false);
   mound.visible = false;
+  bush.visible = sc !== "run" && sc !== "storm";
   sos.visible = fireG.visible = false;
   smoke.material.opacity = 0;
   flare.material.opacity = 0;
