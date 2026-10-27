@@ -6,6 +6,8 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 export { THREE, mergeGeometries };
 
 const PQ = new URLSearchParams(location.search);
@@ -29,7 +31,7 @@ export const rnd = (i, k = 0) => hash(i * 1.37 + k * 9.1, k * 3.3 + i * .71);
 export const col = (a, b, x) => new THREE.Color(a).lerp(new THREE.Color(b), clamp(x));
 
 // ---------- materials / meshes ----------
-export const gradTex = (() => { const d = new Uint8Array([90, 170, 255]); const t = new THREE.DataTexture(d, 3, 1, THREE.RedFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
+export const gradTex = (() => { const d = new Uint8Array([70, 125, 185, 255]); const t = new THREE.DataTexture(d, 4, 1, THREE.RedFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
 export const T = (color, o = {}) => new THREE.MeshToonMaterial(Object.assign({ color, gradientMap: gradTex }, o));
 export const B = (color, o = {}) => new THREE.MeshBasicMaterial(Object.assign({ color }, o));
 const olMats = {};
@@ -44,7 +46,8 @@ export function add(parent, geo, mat, pos = [0, 0, 0], rot = [0, 0, 0], sc = nul
   const m = new THREE.Mesh(geo, mat); m.position.set(...pos); m.rotation.set(...rot); if (sc) m.scale.set(...sc); if (th) ol(m, th); parent.add(m); return m;
 }
 export const G = (parent, pos = [0, 0, 0], rot = [0, 0, 0]) => { const g = new THREE.Group(); g.position.set(...pos); g.rotation.set(...rot); if (parent) parent.add(g); return g; };
-export const Box = (x, y, z) => new THREE.BoxGeometry(x, y, z), Sph = (r, a = 20, b = 14) => new THREE.SphereGeometry(r, a, b), Cap = (r, l, s = 12) => new THREE.CapsuleGeometry(r, l, 5, s), Cyl = (a, b, h, s = 16) => new THREE.CylinderGeometry(a, b, h, s);
+// boxes get slightly rounded edges: catches light on the edges, looks like a real object, not a flat cut-out
+export const Box = (x, y, z) => { const r = Math.min(.09, Math.min(x, y, z) * .14); return r < .004 ? new THREE.BoxGeometry(x, y, z) : new RoundedBoxGeometry(x, y, z, 2, r); }, Sph = (r, a = 20, b = 14) => new THREE.SphereGeometry(r, a, b), Cap = (r, l, s = 12) => new THREE.CapsuleGeometry(r, l, 5, s), Cyl = (a, b, h, s = 16) => new THREE.CylinderGeometry(a, b, h, s);
 export function capDown(r, len) { const g = Cap(r, len); g.translate(0, -len / 2, 0); return g; }
 export const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.45, 'rgba(255,255,255,.7)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
 export function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.redraw = (...a) => { draw(c.getContext('2d'), w, h, ...a); t.needsUpdate = true; }; t.redraw(); return t; }
@@ -148,22 +151,42 @@ export function reach(J, side, target, bendAxis = V(0, -1, -.3)) {
 
 // ---------- renderer ----------
 export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(1); renderer.setSize(W, H, false); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.localClippingEnabled = true;
+renderer.setPixelRatio(1); renderer.setSize(W, H, false); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.localClippingEnabled = true;
 export const camera = new THREE.PerspectiveCamera(60, W / H, .05, 3000);
 const BASEFOV = PORT ? 2 * Math.atan(Math.tan(23 * Math.PI / 180) / (W / H)) * 180 / Math.PI : 46;
 camera.fov = BASEFOV; camera.updateProjectionMatrix();
 const composer = new EffectComposer(renderer); const rp = new RenderPass(new THREE.Scene(), camera); composer.addPass(rp);
+// soft contact shading in corners / where objects meet the ground (objects stop looking 'pasted on')
+const gtao = new GTAOPass(new THREE.Scene(), camera, W, H); gtao.blendIntensity = 1; gtao.updateGtaoMaterial({ radius: .9, distanceExponent: 1.5, thickness: 1, scale: 1, samples: 12 }); gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 }); composer.addPass(gtao);
 composer.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }', fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec4 c = texture2D(tDiffuse, vUv); if (any(isnan(c)) || any(isinf(c))) { c = texture2D(tDiffuse, vUv + vec2(.002,0.)); if (any(isnan(c)) || any(isinf(c))) c = vec4(0.,0.,0.,1.); } gl_FragColor = clamp(c, 0., 3.); }' }));
 export const bloom = new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), .5, .45, .96); composer.addPass(bloom); composer.addPass(new OutputPass());
-let shake = 0; export const setShake = v => { shake = v; };
+let shake = 0; export const setShake = v => { shake = v; }; const lastTgt = new THREE.Vector3();
 // landscape: pull camera back a bit so wide framing keeps subject
 export function setCam(pos, tgt, t = 0, o = {}) {
   let p = pos.clone(); if (!PORT && !o.keep) p = p.sub(tgt).multiplyScalar(o.land ?? 1.0).add(tgt);
   camera.position.copy(p); if (shake > 0) camera.position.add(V(Math.sin(t * 91) * shake, Math.cos(t * 77) * shake, Math.sin(t * 63) * shake * .5));
-  camera.up.set(0, 1, 0); if (o.roll) camera.up.set(Math.sin(o.roll), Math.cos(o.roll), 0); camera.lookAt(tgt);
+  lastTgt.copy(tgt); camera.up.set(0, 1, 0); if (o.roll) camera.up.set(Math.sin(o.roll), Math.cos(o.roll), 0); camera.lookAt(tgt);
   const f = o.fov ? (PORT ? 2 * Math.atan(Math.tan(o.fov / 2 * Math.PI / 180) / (W / H)) * 180 / Math.PI : o.fov) : BASEFOV; if (camera.fov !== f) { camera.fov = f; camera.updateProjectionMatrix(); }
 }
-export function draw(scene) { rp.scene = scene; composer.render(); }
+// real shadows: every solid mesh casts/receives; the sun's shadow box follows what the camera looks at
+const prepped = new WeakSet(), _d = new THREE.Vector3();
+function prepShadows(scene) {
+  scene.traverse(o => {
+    if (o.isMesh && !o.userData.isOutline && !o.isPoints) { const m = o.material; const solid = m && !m.transparent && (m.isMeshToonMaterial || m.isMeshStandardMaterial || m.isMeshLambertMaterial); o.castShadow = !!solid && m.side !== THREE.BackSide && !o.userData.noShadow; o.receiveShadow = !!(m && (m.isMeshToonMaterial || m.isMeshStandardMaterial || m.isMeshLambertMaterial)); }
+    if (o.isDirectionalLight && !o.userData.noShadow) { o.castShadow = true; o.shadow.mapSize.set(2048, 2048); o.shadow.bias = -.0006; o.shadow.normalBias = .03; o.shadow.radius = 3; if (!o.target.parent) scene.add(o.target); }
+  });
+  prepped.add(scene);
+}
+export function draw(scene) {
+  if (!prepped.has(scene) || scene.userData.reprep) { prepShadows(scene); scene.userData.reprep = false; }
+  const dist = camera.position.distanceTo(lastTgt), S = clamp(dist * 1.1, 5, 140);
+  scene.traverse(o => { if (o.isDirectionalLight && o.castShadow) {
+    _d.copy(o.position).sub(o.target.position); if (_d.lengthSq() < 1e-6) _d.set(0, 1, 0); _d.normalize();
+    o.target.position.copy(lastTgt); o.position.copy(lastTgt).addScaledVector(_d, S * 2.5); o.target.updateMatrixWorld();
+    const c = o.shadow.camera; if (c.right !== S) { c.left = -S; c.right = S; c.top = S; c.bottom = -S; c.near = .1; c.far = S * 6; c.updateProjectionMatrix(); } } });
+  rp.scene = scene; gtao.scene = scene; composer.render();
+}
+export const reprep = scene => { scene.userData.reprep = true; };
 
 // ---------- overlays ----------
 const $ = id => document.getElementById(id);
