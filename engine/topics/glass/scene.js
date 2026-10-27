@@ -45,7 +45,7 @@ function people(t, center, mode, k) {
   });
 }
 function town(s, lt, k, t) {
-  const sc = s.scene; W.hidePeople(); W.rain.count = 0; W.glints.material.opacity = 0; W.plume.material.opacity = 0; W.lava.material.opacity = 0;
+  const sc = s.scene; W.trees.forEach(tr => tr.visible = true); W.hidePeople(); W.rain.count = 0; W.glints.material.opacity = 0; W.plume.material.opacity = 0; W.lava.material.opacity = 0;
   let cp, ct, rain = { n: 900, len: 2.2, spd: 3.2, wob: .6, th: .7, box: 30 }, gl = .6, gc = null, sk = [0x7a7fb0, 0xd0d4e8], fogC = 0xc4c8dc;
   W.cars.forEach(c => c.userData.glass.color.set(0x8fd8ff)); W.pipeLow.rotation.set(0, 0, 0); W.pipeLow.position.set(3.6, 1.3, 7.0); W.setWheat(0); W.groundM.color.set(0x8fcf6a);
   W.rainMat.color.set(0xdff6ff); W.rainMat.blending = THREE.AdditiveBlending; W.rainMat.opacity = .85;
@@ -56,7 +56,8 @@ function town(s, lt, k, t) {
   else if (sc === 'planes' || sc === 'grounded') { const o = Z.airport; rain.n = 1500; rain.box = 60; cp = o.clone().add(sc === 'planes' ? V(-30 + k * 10, 6, 22) : V(30 - k * 12, 9, 26)); ct = o.clone().add(V(0, 3, -18)); gl = 0; }
   else if (sc === 'cars') { const c = W.cars[4]; const cw = c.getWorldPosition(V(0, 0, 0)); const cl = sm(.15, .85, k); W.cars.forEach(cc => cc.userData.glass.color.copy(col(0x8fd8ff, 0xe8ecf0, cl))); rain.n = 900; cp = cw.clone().add(V(lerp(4.2, 3.0, eio(k)), 1.9, 2.2)); ct = cw.clone().add(V(.3, .9, 0)); gl = 1; gc = cw; }
   else if (sc === 'gutter') {
-    const J = W.people[2]; J.root.visible = true; J.root.position.set(4.4, .95, 7.6); J.root.rotation.y = -Math.PI / 2 - .4; const off = eio(sm(.25, .65, k)); W.pipeLow.rotation.z = off * 1.2; W.pipeLow.position.x = 3.6 + off * .3;
+    W.trees.forEach(tr => { if (Math.abs(tr.position.x - 4.5) < 1 && tr.position.z > 0) tr.visible = false; }); // keep the barrel in view
+    const J = W.people[2]; J.root.visible = true; J.root.position.set(4.6, .95, 6.3); J.root.rotation.y = -Math.PI / 2 + .55; const off = eio(sm(.25, .65, k)); W.pipeLow.rotation.z = off * 1.2; W.pipeLow.position.x = 3.6 + off * .3;
     pose(J, P(STAND, { spine: [.15], head: [.2, 0, 0] })); J.root.updateMatrixWorld(true); reach(J, 'l', W.pipeLow.localToWorld(V(0, .3, 0)), V(0, -1, -.3)); reach(J, 'r', W.pipeLow.localToWorld(V(0, .15, 0)), V(0, -1, -.3)); face(J, { mouth: 'line', brow: .3, look: [-.5, -.4], blink: blink(t) });
     rain.n = 900; cp = V(6.4, 2.2, 1.2); ct = V(3.8, 1.4, 7.0); gl = 1;
   }

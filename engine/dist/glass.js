@@ -718,6 +718,7 @@ function makeTown(o = {}) {
     const tr = makeTree(0.9 + rnd(i, s) * 0.4);
     tr.position.set(-66 + i * 7.5 + 3, 0.25, s * 5.6);
     st.add(tr);
+    (W3.trees = W3.trees || []).push(tr);
   }
   W3.cars = [];
   const cc = [16730972, 5232895, 16765503, 6094746, 15988218, 16742943];
@@ -1039,6 +1040,7 @@ function people(t, center, mode, k) {
 }
 function town(s, lt, k, t) {
   const sc = s.scene;
+  W2.trees.forEach((tr) => tr.visible = true);
   W2.hidePeople();
   W2.rain.count = 0;
   W2.glints.material.opacity = 0;
@@ -1096,10 +1098,13 @@ function town(s, lt, k, t) {
     gl = 1;
     gc = cw;
   } else if (sc === "gutter") {
+    W2.trees.forEach((tr) => {
+      if (Math.abs(tr.position.x - 4.5) < 1 && tr.position.z > 0) tr.visible = false;
+    });
     const J = W2.people[2];
     J.root.visible = true;
-    J.root.position.set(4.4, 0.95, 7.6);
-    J.root.rotation.y = -Math.PI / 2 - 0.4;
+    J.root.position.set(4.6, 0.95, 6.3);
+    J.root.rotation.y = -Math.PI / 2 + 0.55;
     const off = eio(sm(0.25, 0.65, k));
     W2.pipeLow.rotation.z = off * 1.2;
     W2.pipeLow.position.x = 3.6 + off * 0.3;

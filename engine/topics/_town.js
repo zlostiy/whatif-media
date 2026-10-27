@@ -83,7 +83,7 @@ export function makeTown(o = {}) {
   const hc = [0xffd9a8, 0xa8d8ff, 0xffb0c8, 0xc8f0a8, 0xfff0a0, 0xd8c0ff], rc = [0xff6b5c, 0x5d6378, 0x4f7cff, 0x8a5a3a];
   W.houses = [];
   for (let i = 0; i < 16; i++) for (const s of [-1, 1]) { const x = -60 + i * 8 + (s > 0 ? 3 : 0), h = 3 + (i * 7 + (s > 0 ? 3 : 0)) % 3 * 1.6; const hs = makeHouse(5.4, h, 4.4, hc[(i + (s > 0 ? 2 : 0)) % 6], rc[i % 4]); hs.position.set(x, 0, s * 9.5); hs.rotation.y = s > 0 ? Math.PI : 0; st.add(hs); W.houses.push(hs); }
-  for (let i = 0; i < 18; i++) for (const s of [-1, 1]) { const tr = makeTree(.9 + rnd(i, s) * .4); tr.position.set(-66 + i * 7.5 + 3, .25, s * 5.6); st.add(tr); }
+  for (let i = 0; i < 18; i++) for (const s of [-1, 1]) { const tr = makeTree(.9 + rnd(i, s) * .4); tr.position.set(-66 + i * 7.5 + 3, .25, s * 5.6); st.add(tr); (W.trees = W.trees || []).push(tr); }
   W.cars = []; const cc = [0xff4b5c, 0x4fd8ff, 0xffd23f, 0x5cff9a, 0xf3f5fa, 0xff7a1f];
   for (let i = 0; i < 10; i++) { const c = makeCar(cc[i % 6]); c.position.set(-40 + i * 9 + (i % 2) * 2, 0, (i % 2 ? 2.2 : -2.2)); c.rotation.y = i % 2 ? Math.PI : 0; st.add(c); W.cars.push(c); }
   // rain barrel + downspout at a house near origin
