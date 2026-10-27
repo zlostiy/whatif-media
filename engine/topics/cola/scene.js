@@ -38,7 +38,7 @@ function town(s, lt, k, t) {
   W.rainMat.color.set(0x5a2a10); W.rainMat.opacity = .75; W.setWheat(0); W.cars.forEach(c => c.userData.body.emissive && c.userData.body.emissive.set(0x000000));
   const ppl = (mode, k2) => W.kids.concat(W.people.slice(0, 3)).forEach((J, i) => { J.root.visible = true; let x = -3 + i * 1.4, z = 4.8 + (i % 2) * .6; let p = P(STAND), f = { mouth: 'smile', blink: blink(t + i) }, y = J === W.kids[0] || J === W.kids[1] || J === W.kids[2] ? .72 : .95;
     if (mode === 'kids') { p = P(STAND, { head: [-.6, 0, 0], lSh: [0, 0, 2.4 + Math.sin(t * 6 + i) * .2], rSh: [0, 0, -2.4 - Math.sin(t * 6 + i) * .2], lEl: [0, 0, .3], rEl: [0, 0, -.3] }); f = { mouth: 'open', open: 1.1, eye: .3 }; y += Math.abs(Math.sin(t * 5 + i)) * .25; }
-    if (mode === 'eyes') { const ph = (lt * 2.4 + i * 1.3); x = -3 + i * 1.4 - ph; p = P(runPose(t + i, 12, .7), { lSh: [-2.2, .2, .3], rSh: [-2.2, -.2, -.3], lEl: [-2.0], rEl: [-2.0], head: [.2, 0, 0] }); f = { mouth: 'open', open: .6, eye: .1, brow: .6 }; y += bob(t + i, 12); J.root.rotation.y = -Math.PI / 2; }
+    if (mode === 'eyes') { const ph = lt * 2.4; x = -3 + i * 1.5 - ph; z = 4.8 + (i % 3) * .55; p = P(runPose(t + i, 12, .7), { lSh: [-2.2, .2, .3], rSh: [-2.2, -.2, -.3], lEl: [-2.0], rEl: [-2.0], head: [.2, 0, 0] }); f = { mouth: 'open', open: .6, eye: .1, brow: .6 }; y += bob(t + i, 12); J.root.rotation.y = -Math.PI / 2; }
     else J.root.rotation.y = Math.PI + .1 * i - .2;
     J.root.position.set(x, y + .25 * (y < .9 ? .0 : 0), z); pose(J, p); face(J, f); });
   if (sc === 'hook') { rain.n = Math.floor(lerp(60, 1500, sm(.05, .8, k))); wet = sm(.3, 1, k) * .5; pa = sm(.4, 1, k) * .5; cp = V(-12, lerp(10, 2.6, eio(k)), -1.5); ct = V(0, 2, 4.6); }

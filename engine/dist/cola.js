@@ -1028,8 +1028,9 @@ function town(s, lt, k, t) {
       y += Math.abs(Math.sin(t * 5 + i)) * 0.25;
     }
     if (mode === "eyes") {
-      const ph = lt * 2.4 + i * 1.3;
-      x = -3 + i * 1.4 - ph;
+      const ph = lt * 2.4;
+      x = -3 + i * 1.5 - ph;
+      z = 4.8 + i % 3 * 0.55;
       p = P(runPose(t + i, 12, 0.7), { lSh: [-2.2, 0.2, 0.3], rSh: [-2.2, -0.2, -0.3], lEl: [-2], rEl: [-2], head: [0.2, 0, 0] });
       f = { mouth: "open", open: 0.6, eye: 0.1, brow: 0.6 };
       y += bob(t + i, 12);
