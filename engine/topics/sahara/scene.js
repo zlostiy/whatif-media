@@ -93,7 +93,7 @@ function desert(s, lt, k, t) {
   else if (sc === 'lost') { tod = 'day'; const p = at(14, 0, .95); placeMan(man, p, Math.sin(t * .8) * 1.2); ps = P(STAND, { head: [0, Math.sin(t * 1.1) * .6, 0], lSh: [0, 0, .5], rSh: [0, 0, -.5] }); f = { mouth: 'frown', brow: .5, look: [Math.sin(t * 1.1), 0], blink: blink(t) };
     const a = .3 + k * .8; cp = p.clone().add(V(Math.cos(a) * 4.5, 2.2 + k * 2.5, Math.sin(a) * 4.5)); ct = p.clone(); }
   else if (sc === 'archive') { tod = 'day'; const p = at(14, 0, .95); placeMan(man, p, .6); ps = P(STAND); cp = p.clone().add(V(4, 2, 6)); ct = p; }
-  else if (sc === 'bush') { tod = 'night'; const p = BUSH.clone().add(V(2.0, .25, 1.6)); placeMan(man, p, -.8); ps = P(SIT, { spine: [.35], head: [.3, 0, 0], lSh: [-1.0, 0, .4], rSh: [-1.0, 0, -.4], lEl: [-1.5], rEl: [-1.5], lHip: [-2.0, 0, .1], rHip: [-2.0, 0, -.1], lKn: [2.2], rKn: [2.2] }); f = { mouth: 'line', eye: .5, brow: .4 };
+  else if (sc === 'bush') { tod = 'night'; const p = at(BUSH.x + 2.2, BUSH.z + 1.9, .25); placeMan(man, p, -.8); ps = P(SIT, { spine: [.35], head: [.3, 0, 0], lSh: [-1.0, 0, .4], rSh: [-1.0, 0, -.4], lEl: [-1.5], rEl: [-1.5], lHip: [-2.0, 0, .1], rHip: [-2.0, 0, -.1], lKn: [2.2], rKn: [2.2] }); f = { mouth: 'line', eye: .5, brow: .4 };
     cp = p.clone().add(V(3.2, 1.4, 4.2)); ct = p.clone().add(V(-.5, .4, 0)); }
   else if (sc === 'search') { tod = 'hot'; const p = runAt(20, 10, -.4, 2.6); ps = runPose(t, 11, .7); f = { mouth: 'open', open: .5, brow: .4, blink: blink(t) }; const a = 1.2 - k * .5; cp = p.clone().add(V(Math.cos(a) * 6, 3, Math.sin(a) * 6)); ct = p.clone(); }
   else if (sc === 'bottle') { tod = 'hot'; const p = at(30, 8, .95); placeMan(man, p, -.4); ps = P(STAND, { lSh: [-1.3, 0, .2], lEl: [-1.4], head: [.3, 0, 0] }); f = { mouth: 'frown', brow: .5, look: [.3, -.6], blink: blink(t) }; cp = p.clone().add(V(1.8, 1.1, 2.6)); ct = p.clone().add(V(0, .2, 0)); }
@@ -128,12 +128,13 @@ function desert(s, lt, k, t) {
   for (let i = 0; i < 3000 && storm > 0; i++) { const B2 = 30, c = cp; let x = rnd(i, 1) * B2 + t * 14, y = rnd(i, 2) * 8, z = rnd(i, 3) * B2; sand.pos[i * 3] = ((x - c.x) % B2 + B2) % B2 - B2 / 2 + c.x; sand.pos[i * 3 + 1] = c.y - 2 + y + Math.sin(t * 2 + i) * .3; sand.pos[i * 3 + 2] = ((z - c.z) % B2 + B2) % B2 - B2 / 2 + c.z; }
   sand.upd(); sand.material.opacity = .55 * storm;
   if (flagG.visible) { const a = flag.geometry.attributes.position; for (let i = 0; i < a.count; i++) { const x = flagBase[i * 3]; a.setZ(i, Math.sin(x * 4 - t * 6) * .08 * (x + .6)); } a.needsUpdate = true; }
-  pose(man, ps || P(STAND)); face(man, f); setCam(cp, ct, t, { land: 1.1 }); draw(ds);
+  pose(man, ps || P(STAND)); face(man, f); { const g = DH(cp.x, cp.z) + .9; if (cp.y < g) cp.y = g; } // never put the camera inside a dune
+  setCam(cp, ct, t, { land: 1.1 }); draw(ds);
 }
 function inside(s, lt, k, t) {
   man2.root.position.set(.3, .45, .8); man2.root.rotation.y = -2.6; pose(man2, P(SIT, { spine: [.15], head: [-.6, 0, 0], rSh: [-1.6, 0, -.2], rEl: [-1.3] })); face(man2, { mouth: 'line', look: [0, 1], brow: .4, blink: blink(t) });
   for (let i = 0; i < 40; i++) { dmy.position.set((rnd(i, 1) - .5) * 4, 3.4, (rnd(i, 2) - .5) * 4); dmy.rotation.set(Math.PI, rnd(i, 3) * 6 + Math.sin(t * 1.5 + i) * .15, Math.sin(t * 2 + i) * .1); dmy.scale.setScalar(1 + rnd(i, 4) * .4); dmy.updateMatrix(); bats.setMatrixAt(i, dmy.matrix); } bats.instanceMatrix.needsUpdate = true;
-  setCam(V(1.2, 1.0, 2.2).lerp(V(.8, 1.4, 1.5), eio(k)), V(-.2, 2.6, -.3), t, { keep: true, fov: 60 }); draw(inn);
+  setCam(V(2.7, 1.3, 2.9).lerp(V(2.3, 1.6, 2.5), eio(k)), V(-.1, 2.1, -.2), t, { keep: true, fov: 58 }); draw(inn);
 }
 function hospital(s, lt, k, t) {
   man3.root.position.set(0, 1.05, -.2); man3.root.rotation.set(-Math.PI / 2 + .4, 0, 0); pose(man3, P(STAND, { lSh: [0, 0, .3], rSh: [0, 0, -.3] })); face(man3, { mouth: 'smile', eye: .7, blink: blink(t) });

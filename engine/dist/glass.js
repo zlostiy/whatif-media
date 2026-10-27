@@ -1060,13 +1060,13 @@ function town(s, lt, k, t) {
     ct = V(0, 2.2, 4.6);
     gl = sm(0.5, 1, k) * 0.5;
   } else if (sc === "hair") {
-    rain = { n: 260, len: 3, spd: 1.4, wob: 0.5, th: 2.2, box: 14, keep: true };
-    W2.rainMat.opacity = 0.5;
+    rain = { n: 260, len: 3, spd: 1.4, wob: 0.5, th: 1.3, box: 14, keep: true };
+    W2.rainMat.opacity = 0.42;
     cp = V(1.5, 2, -1.2);
     ct = V(0, 2.4, 4.5);
     gl = 0.5;
   } else if (sc === "size") {
-    rain = { n: 120, len: 4.5, spd: 0.7, wob: 0.3, th: 2.4, box: 8, keep: true };
+    rain = { n: 120, len: 4.5, spd: 0.7, wob: 0.3, th: 1.5, box: 8, keep: true };
     W2.rainMat.opacity = 0.5;
     cp = V(0.4, 1.7, 0.8);
     ct = V(0, 1.9, 4);

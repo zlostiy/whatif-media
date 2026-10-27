@@ -883,7 +883,7 @@ function desert(s, lt, k, t) {
     ct = p;
   } else if (sc === "bush") {
     tod = "night";
-    const p = BUSH.clone().add(V(2, 0.25, 1.6));
+    const p = at(BUSH.x + 2.2, BUSH.z + 1.9, 0.25);
     placeMan(man, p, -0.8);
     ps = P(SIT, { spine: [0.35], head: [0.3, 0, 0], lSh: [-1, 0, 0.4], rSh: [-1, 0, -0.4], lEl: [-1.5], rEl: [-1.5], lHip: [-2, 0, 0.1], rHip: [-2, 0, -0.1], lKn: [2.2], rKn: [2.2] });
     f = { mouth: "line", eye: 0.5, brow: 0.4 };
@@ -1101,6 +1101,10 @@ function desert(s, lt, k, t) {
   }
   pose(man, ps || P(STAND));
   face(man, f);
+  {
+    const g = DH(cp.x, cp.z) + 0.9;
+    if (cp.y < g) cp.y = g;
+  }
   setCam(cp, ct, t, { land: 1.1 });
   draw(ds);
 }
@@ -1117,7 +1121,7 @@ function inside(s, lt, k, t) {
     bats.setMatrixAt(i, dmy2.matrix);
   }
   bats.instanceMatrix.needsUpdate = true;
-  setCam(V(1.2, 1, 2.2).lerp(V(0.8, 1.4, 1.5), eio(k)), V(-0.2, 2.6, -0.3), t, { keep: true, fov: 60 });
+  setCam(V(2.7, 1.3, 2.9).lerp(V(2.3, 1.6, 2.5), eio(k)), V(-0.1, 2.1, -0.2), t, { keep: true, fov: 58 });
   draw(inn);
 }
 function hospital(s, lt, k, t) {
