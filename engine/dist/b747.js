@@ -1038,7 +1038,7 @@ var throttles = [-0.36, -0.12, 0.12, 0.36].map((x) => {
 var flapLever = grp(ped, 0.38, 1, -0.6);
 pxBox(flapLever, 0.08, 0.5, 0.08, flat("#c8ced6"), 0, 0, 0);
 pxBox(flapLever, 0.2, 0.14, 0.16, flat("#c8ced6"), 0, 0.5, 0);
-var gearLever = grp(K, 1, 1.5, 2.3);
+var gearLever = grp(K, 1, 1.3, 1.6);
 pxBox(gearLever, 0.07, 0.4, 0.07, flat("#c8ced6"), 0, 0, 0);
 var gk = pxCyl(gearLever, 0.16, 0.16, 0.1, flat("#e9e6df"), 0, 0.45, 0, 16);
 gk.rotation.z = Math.PI / 2;
@@ -1079,10 +1079,10 @@ function cockpit(sc, lt, k, t) {
   yokes.forEach((y) => y.userData.w.rotation.y = sc === "yoke" ? Math.sin(sm(0.65, 1, k) * Math.PI) * 0.5 : 0);
   throttles.forEach((g) => g.rotation.x = sc === "throttle" ? lerp(-0.4, 0.5, sm(0.4, 0.8, k)) : -0.4);
   flapLever.position.z = sc === "flaps" ? -0.6 - sm(0.3, 0.7, k) * 0.4 : -0.6;
-  gearLever.position.y = sc === "gear" ? 1.5 + sm(0.3, 0.6, k) * 0.3 : 1.5;
+  gearLever.position.y = sc === "gear" ? 1.3 + sm(0.3, 0.6, k) * 0.3 : 1.3;
   pilot.frame(blink(t) ? "grip1" : Math.floor(t * 2) % 2 ? "grip" : "sitTalk");
   copilot.frame("grip");
-  const C2 = { yoke: [new V3(-0.6, 4.3, 5.6), new V3(-1.6, 1.3, 0.2)], pedals: [new V3(-3.2, 2.3, -0.2), new V3(-1.6, 0.2, 1.5)], throttle: [new V3(1, 3.1, 2.4), new V3(0, 1.3, 0.1)], flaps: [new V3(1.4, 2.9, 1.4), new V3(0.3, 1.3, -0.6)], gear: [new V3(2.8, 3, 0.2), new V3(1, 1.8, 2.3)] }[sc] || [new V3(0, 4, 4.5), new V3(0, 1, 0)];
+  const C2 = { yoke: [new V3(-0.6, 4.3, 5.6), new V3(-1.6, 1.3, 0.2)], pedals: [new V3(-3.2, 2.3, -0.2), new V3(-1.6, 0.2, 1.5)], throttle: [new V3(1, 3.1, 2.4), new V3(0, 1.3, 0.1)], flaps: [new V3(2.3, 3.6, -1.8), new V3(0.3, 1.3, -0.4)], gear: [new V3(0.4, 3.2, -0.6), new V3(1, 1.5, 1.6)] }[sc] || [new V3(0, 4, 4.5), new V3(0, 1, 0)];
   camera.position.copy(C2[0]);
   pilot.face(camera);
   copilot.face(camera);

@@ -43,7 +43,7 @@ const pedals = [-1.9, -1.3].map(x => pxBox(K, .3, .15, .5, flat('#4a4e56'), x, .
 const ped = grp(K, 0, 0, .2); pxBox(ped, 1, 1, 2.2, MAT.panel(), 0, 0, 0);
 const throttles = [-.36, -.12, .12, .36].map(x => { const g = grp(ped, x, 1, .2); pxBox(g, .08, .6, .08, flat('#c8ced6'), 0, 0, 0); pxBox(g, .16, .14, .2, flat('#1d1d22'), 0, .6, 0); g.rotation.x = -.4; return g; });
 const flapLever = grp(ped, .38, 1, -.6); pxBox(flapLever, .08, .5, .08, flat('#c8ced6'), 0, 0, 0); pxBox(flapLever, .2, .14, .16, flat('#c8ced6'), 0, .5, 0);
-const gearLever = grp(K, 1.0, 1.5, 2.3); pxBox(gearLever, .07, .4, .07, flat('#c8ced6'), 0, 0, 0); const gk = pxCyl(gearLever, .16, .16, .1, flat('#e9e6df'), 0, .45, 0, 16); gk.rotation.z = Math.PI / 2;
+const gearLever = grp(K, 1.0, 1.3, 1.6); pxBox(gearLever, .07, .4, .07, flat('#c8ced6'), 0, 0, 0); const gk = pxCyl(gearLever, .16, .16, .1, flat('#e9e6df'), 0, .45, 0, 16); gk.rotation.z = Math.PI / 2;
 const pilot = makeHero(); pilot.root.position.set(-1.6, .55, -.7); K.add(pilot.root);
 const copilot = makeHero({ tint: '#d8e8ff' }); copilot.root.position.set(1.6, .55, -.7); K.add(copilot.root);
 const marks = { yoke: [yokes[0].userData.w], pedals, throttle: throttles.map(g => g.children[1]), flaps: [flapLever.children[1]], gear: [gk] };
@@ -59,9 +59,9 @@ function cockpit(sc, lt, k, t) {
   Object.values(marks).flat().forEach(m => { if (!m.userData.mat0) m.userData.mat0 = m.material; m.material = m.userData.mat0; });
   const on = marks[sc]; if (on) { hl.emissiveIntensity = 1 + Math.sin(lt * 3) * .5; on.forEach(m => m.material = hl); }
   yokes.forEach(y => y.rotation.x = sc === 'yoke' ? -sm(.3, .6, k) * .3 : 0); yokes.forEach(y => y.userData.w.rotation.y = sc === 'yoke' ? Math.sin(sm(.65, 1, k) * Math.PI) * .5 : 0);
-  throttles.forEach(g => g.rotation.x = sc === 'throttle' ? lerp(-.4, .5, sm(.4, .8, k)) : -.4); flapLever.position.z = sc === 'flaps' ? -.6 - sm(.3, .7, k) * .4 : -.6; gearLever.position.y = sc === 'gear' ? 1.5 + sm(.3, .6, k) * .3 : 1.5;
+  throttles.forEach(g => g.rotation.x = sc === 'throttle' ? lerp(-.4, .5, sm(.4, .8, k)) : -.4); flapLever.position.z = sc === 'flaps' ? -.6 - sm(.3, .7, k) * .4 : -.6; gearLever.position.y = sc === 'gear' ? 1.3 + sm(.3, .6, k) * .3 : 1.3;
   pilot.frame(blink(t) ? 'grip1' : (Math.floor(t * 2) % 2 ? 'grip' : 'sitTalk')); copilot.frame('grip');
-  const C2 = { yoke: [new V3(-.6, 4.3, 5.6), new V3(-1.6, 1.3, .2)], pedals: [new V3(-3.2, 2.3, -.2), new V3(-1.6, .2, 1.5)], throttle: [new V3(1, 3.1, 2.4), new V3(0, 1.3, .1)], flaps: [new V3(1.4, 2.9, 1.4), new V3(.3, 1.3, -.6)], gear: [new V3(2.8, 3, .2), new V3(1, 1.8, 2.3)] }[sc] || [new V3(0, 4, 4.5), new V3(0, 1, 0)];
+  const C2 = { yoke: [new V3(-.6, 4.3, 5.6), new V3(-1.6, 1.3, .2)], pedals: [new V3(-3.2, 2.3, -.2), new V3(-1.6, .2, 1.5)], throttle: [new V3(1, 3.1, 2.4), new V3(0, 1.3, .1)], flaps: [new V3(2.3, 3.6, -1.8), new V3(.3, 1.3, -.4)], gear: [new V3(.4, 3.2, -.6), new V3(1, 1.5, 1.6)] }[sc] || [new V3(0, 4, 4.5), new V3(0, 1, 0)];
   camera.position.copy(C2[0]); pilot.face(camera); copilot.face(camera);
   return shoot(K, C2[0], C2[1], { subject: C2[1], tilt: 6, aper: 1.2, fov: 40, near: .1 });
 }
