@@ -16,6 +16,7 @@ export const W = +(PQ.get('w') || 1080), H = +(PQ.get('h') || 1920), PORT = H > 
 export const OV = PQ.get('ov') === '1' || window.RENDER_MODE === 'ov', GPU = window.RENDER_MODE === 'gpu';
 document.getElementById('wrap').style.cssText = `width:${W}px;height:${H}px`;
 if (PQ.get('ov') === '1') { document.documentElement.style.background = document.body.style.background = 'transparent'; document.getElementById('c').style.visibility = 'hidden'; } const canvas = document.getElementById('c'); canvas.width = W; canvas.height = H;
+if (PQ.get('nov') === '1') document.querySelector('.ov').style.display = 'none'; // 3D only (cloud: low-res 3D + full-res overlays)
 
 // ---------- math ----------
 export const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -157,7 +158,7 @@ const BASEFOV = PORT ? 2 * Math.atan(Math.tan(23 * Math.PI / 180) / (W / H)) * 1
 camera.fov = BASEFOV; camera.updateProjectionMatrix();
 const composer = new EffectComposer(renderer); const rp = new RenderPass(new THREE.Scene(), camera); composer.addPass(rp);
 // soft contact shading in corners / where objects meet the ground (objects stop looking 'pasted on')
-const gtao = new GTAOPass(new THREE.Scene(), camera, W, H); gtao.blendIntensity = 1; gtao.updateGtaoMaterial({ radius: .9, distanceExponent: 1.5, thickness: 1, scale: 1, samples: 12 }); gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 }); composer.addPass(gtao);
+const gtao = new GTAOPass(new THREE.Scene(), camera, W, H); gtao.blendIntensity = 1; gtao.updateGtaoMaterial({ radius: .9, distanceExponent: 1.5, thickness: 1, scale: 1, samples: 12 }); gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 }); if (PQ.get('lite') !== '1') composer.addPass(gtao); // lite=1: no contact shading (faster cloud renders)
 composer.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }', fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec4 c = texture2D(tDiffuse, vUv); if (any(isnan(c)) || any(isinf(c))) { c = texture2D(tDiffuse, vUv + vec2(.002,0.)); if (any(isnan(c)) || any(isinf(c))) c = vec4(0.,0.,0.,1.); } gl_FragColor = clamp(c, 0., 3.); }' }));
 export const bloom = new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), .5, .45, .96); composer.addPass(bloom); composer.addPass(new OutputPass());
 let shake = 0; export const setShake = v => { shake = v; }; const lastTgt = new THREE.Vector3();
@@ -199,7 +200,8 @@ let BUBC = ['#1a1033', '#2b1f66', '#3a2a8a'];
 function drawBubbles(p) {
   bctx.clearRect(0, 0, BW, BH); if (p <= 0 || p >= 1) return;
   const cov = p < .5 ? eio(p * 2) : eio((1 - p) * 2);
-  for (let i = 0; i < 70; i++) { const x = rnd(i, 101) * BW, y = rnd(i, 102) * BH + (1 - cov) * 300 * (p < .5 ? 1 : -1), r = cov * (90 + rnd(i, 103) * 110); bctx.fillStyle = BUBC[i % 3]; bctx.beginPath(); bctx.arc(x, y, r, 0, 6.29); bctx.fill(); bctx.strokeStyle = 'rgba(255,255,255,.25)'; bctx.lineWidth = 4; bctx.beginPath(); bctx.arc(x - r * .3, y - r * .3, r * .5, 3.6, 4.6); bctx.stroke(); }
+  if (cov < .03) return; // near the ends the circles would be sub-pixel specks (and their outline strokes leave dots) — draw nothing
+  for (let i = 0; i < 70; i++) { const x = rnd(i, 101) * BW, y = rnd(i, 102) * BH + (1 - cov) * 300 * (p < .5 ? 1 : -1), r = cov * (90 + rnd(i, 103) * 110); if (r < 3) continue; bctx.fillStyle = BUBC[i % 3]; bctx.beginPath(); bctx.arc(x, y, r, 0, 6.29); bctx.fill(); bctx.strokeStyle = 'rgba(255,255,255,.25)'; bctx.lineWidth = 4; bctx.beginPath(); bctx.arc(x - r * .3, y - r * .3, r * .5, 3.6, 4.6); bctx.stroke(); }
 }
 export const fmtN = n => EN ? Math.round(n).toLocaleString('en-US') : Math.round(n).toLocaleString('ru-RU').replace(/[  ,]/g, ' ');
 export const fmtD = (n, d = 1) => EN ? n.toFixed(d) : n.toFixed(d).replace('.', ',');
@@ -260,11 +262,12 @@ export function start(topic) {
     if (prev && prev.badge !== s.badge) bp2 = .5 + .5 * clamp(lt / .35);
     if (nx && nx.badge !== s.badge) { const r = s.dur - lt; if (r < .35) bp2 = .5 * (1 - r / .35); }
     drawBubbles(bp2 > 0 && bp2 < 1 ? bp2 : 0);
+    bub.style.visibility = bp2 > 0 && bp2 < 1 ? 'visible' : 'hidden'; // hidden between wipes: a stale canvas can never linger in a frame
     const fx = topic.fx ? topic.fx(s, lt, k, i) || {} : {}; let fl = fx.fl || 0, bk = fx.bk || 0;
     if (i === 0) bk = Math.max(bk, 1 - sm(0, .5, t));
     if (i === shots.length - 1) bk = Math.max(bk, sm(s.dur - .5, s.dur, lt));
     $('flash').style.opacity = fl; $('flash').style.background = fx.flc || '#fff'; $('black').style.opacity = bk;
-    if (OV) window.__ovSig = [full.innerHTML, cards.innerHTML, capEl.innerHTML, badge.style.cssText, s.badge, s.loc, capEl.style.cssText, (bp2 > 0 && bp2 < 1 ? bp2 : 0).toFixed(3), fl.toFixed(3), fx.flc || '', bk.toFixed(3)].join('|');
+    if (OV) window.__ovSig = [full.innerHTML, cards.innerHTML, capEl.innerHTML, badge.style.cssText, s.badge, s.loc, capEl.style.cssText, (bp2 > 0 && bp2 < 1 ? bp2 : 0).toFixed(4), fl.toFixed(3), fx.flc || '', bk.toFixed(3)].join('|');
   };
   window.ready = document.fonts.ready.then(() => Promise.all([...document.fonts].map(f => f.load().catch(() => 0)))).then(() => { window.setTime(0); return true; });
 }
