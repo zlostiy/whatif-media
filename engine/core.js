@@ -8,6 +8,9 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+// SOFT: 'clay' look (smooth matte shapes, soft light and shadows, no black outlines). A topic turns it on by importing '../soft_on.js' first.
+export const SOFT = !!globalThis.STYLE_SOFT;
 export { THREE, mergeGeometries };
 
 const PQ = new URLSearchParams(location.search);
@@ -33,7 +36,7 @@ export const col = (a, b, x) => new THREE.Color(a).lerp(new THREE.Color(b), clam
 
 // ---------- materials / meshes ----------
 export const gradTex = (() => { const d = new Uint8Array([70, 125, 185, 255]); const t = new THREE.DataTexture(d, 4, 1, THREE.RedFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
-export const T = (color, o = {}) => new THREE.MeshToonMaterial(Object.assign({ color, gradientMap: gradTex }, o));
+export const T = (color, o = {}) => SOFT ? new THREE.MeshStandardMaterial(Object.assign({ color, roughness: .78, metalness: 0 }, o)) : new THREE.MeshToonMaterial(Object.assign({ color, gradientMap: gradTex }, o));
 export const B = (color, o = {}) => new THREE.MeshBasicMaterial(Object.assign({ color }, o));
 const olMats = {};
 function olMat(th) { if (olMats[th]) return olMats[th]; return olMats[th] = new THREE.ShaderMaterial({ side: THREE.BackSide, vertexShader: `void main(){ vec3 p = position + normal * ${th.toFixed(4)}; gl_Position = projectionMatrix * modelViewMatrix * vec4(p,1.); }`, fragmentShader: `void main(){ gl_FragColor = vec4(.078,.047,.165,1.); }` }); }
@@ -44,11 +47,12 @@ export function ol(mesh, th = .018) {
   const o = new THREE.Mesh(g, olMat(th)); o.userData.isOutline = true; mesh.add(o); return mesh;
 }
 export function add(parent, geo, mat, pos = [0, 0, 0], rot = [0, 0, 0], sc = null, th = .018) {
-  const m = new THREE.Mesh(geo, mat); m.position.set(...pos); m.rotation.set(...rot); if (sc) m.scale.set(...sc); if (th) ol(m, th); parent.add(m); return m;
+  const m = new THREE.Mesh(geo, mat); m.position.set(...pos); m.rotation.set(...rot); if (sc) m.scale.set(...sc); if (th && !SOFT) ol(m, th); parent.add(m); return m;
 }
 export const G = (parent, pos = [0, 0, 0], rot = [0, 0, 0]) => { const g = new THREE.Group(); g.position.set(...pos); g.rotation.set(...rot); if (parent) parent.add(g); return g; };
 // boxes get slightly rounded edges: catches light on the edges, looks like a real object, not a flat cut-out
-export const Box = (x, y, z) => { const r = Math.min(.09, Math.min(x, y, z) * .14); return r < .004 ? new THREE.BoxGeometry(x, y, z) : new RoundedBoxGeometry(x, y, z, 2, r); }, Sph = (r, a = 20, b = 14) => new THREE.SphereGeometry(r, a, b), Cap = (r, l, s = 12) => new THREE.CapsuleGeometry(r, l, 5, s), Cyl = (a, b, h, s = 16) => new THREE.CylinderGeometry(a, b, h, s);
+const SQ = SOFT ? 3 : 1; // soft look: smoother, more rounded geometry
+export const Box = (x, y, z) => { const r = Math.min(SOFT ? .14 : .09, Math.min(x, y, z) * (SOFT ? .22 : .14)); return r < .004 ? new THREE.BoxGeometry(x, y, z) : new RoundedBoxGeometry(x, y, z, SOFT ? 5 : 2, r); }, Sph = (r, a = 20, b = 14) => new THREE.SphereGeometry(r, Math.max(a * SQ, SOFT ? 48 : 0), Math.max(b * SQ, SOFT ? 32 : 0)), Cap = (r, l, s = 12) => new THREE.CapsuleGeometry(r, l, SOFT ? 12 : 5, s * SQ), Cyl = (a, b, h, s = 16) => new THREE.CylinderGeometry(a, b, h, s * SQ);
 export function capDown(r, len) { const g = Cap(r, len); g.translate(0, -len / 2, 0); return g; }
 export const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.45, 'rgba(255,255,255,.7)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
 export function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.redraw = (...a) => { draw(c.getContext('2d'), w, h, ...a); t.needsUpdate = true; }; t.redraw(); return t; }
@@ -94,11 +98,11 @@ export function makeHuman(o = {}) {
   if (o.pilotCap) { add(head, Cyl(.26, .24, .1, 22), T(0x1d2a5a), [0, .42, 0], [-.1, 0, 0], null, .012); add(head, Box(.2, .03, .12), T(0x111111), [0, .39, .22], [.4, 0, 0], null, .008); add(head, new THREE.CircleGeometry(.04, 12), B(0xffd23f), [0, .44, .25], [-.1, 0, 0], null, 0); }
   for (const x of [-.235, .235]) add(head, Sph(.05, 10, 8), skin, [x, .2, 0], [0, 0, 0], [.6, 1, 1], .01);
   J.eyes = []; J.pupils = []; J.brows = [];
-  for (const x of [-.085, .085]) { const eg = G(head, [x, .23, .2]); add(eg, Sph(.056, 16, 12), white, [0, 0, 0], [0, 0, 0], [1, 1.15, .45], .008); const pu = G(eg); add(pu, Sph(.034, 14, 10), blk, [0, 0, .02], [0, 0, 0], [1, 1.1, .5], 0); add(pu, Sph(.011, 8, 6), B(0xffffff), [.012, .015, .04], [0, 0, 0], null, 0); J.eyes.push(eg); J.pupils.push(pu); J.brows.push(add(head, Cap(.014, .07, 8), o.hairStyle === 'wrap' ? T(0x2a1a10) : hairM, [x, .325, .2], [0, 0, Math.PI / 2], null, .006)); }
+  for (const x of [-.085, .085]) { const eg = G(head, [x, .23, .2]); add(eg, Sph(.056, 16, 12), white, [0, 0, 0], [0, 0, 0], [1, 1.15, .45], .008); const pu = G(eg); add(pu, Sph(.034, 14, 10), blk, [0, 0, .02], [0, 0, 0], [1, 1.1, .5], 0); add(pu, Sph(.011, 8, 6), B(0xffffff), [.012, .015, .04], [0, 0, 0], null, 0); if (SOFT) { eg.children[0].visible = false; pu.children[1].scale.setScalar(.6); } J.eyes.push(eg); J.pupils.push(pu); J.brows.push(add(head, Cap(.014, .07, 8), o.hairStyle === 'wrap' ? T(0x2a1a10) : hairM, [x, .325, .2], [0, 0, Math.PI / 2], null, .006)); }
   if (o.glasses) for (const x of [-.085, .085]) add(head, new THREE.TorusGeometry(.07, .012, 6, 20), blk, [x, .23, .23], [0, 0, 0], null, 0);
   if (o.beard) add(head, Sph(.2, 20, 14, 0, Math.PI * 2, Math.PI * .55, Math.PI * .45), hairM, [0, .2, .03], [0, 0, 0], [1, 1, 1], .012);
   if (o.stubble) add(head, Sph(.235, 20, 14, -Math.PI * .3, Math.PI * .6, Math.PI * .6, Math.PI * .25), T(0x6a4a3a, { transparent: true, opacity: .35 }), [0, .22, .01], [0, 0, 0], null, 0);
-  for (const x of [-.15, .15]) add(head, new THREE.CircleGeometry(.035, 14), cheek, [x, .15, .215], [0, x * 2.5, 0], null, 0);
+  if (!SOFT) for (const x of [-.15, .15]) add(head, new THREE.CircleGeometry(.035, 14), cheek, [x, .15, .215], [0, x * 2.5, 0], null, 0);
   add(head, Sph(.025, 10, 8), skin, [0, .18, .235], [0, 0, 0], null, .006);
   const mg = G(head, [0, .105, .215]); J.mouths = {};
   J.mouths.smile = add(mg, new THREE.TorusGeometry(.045, .012, 6, 16, Math.PI), blk, [0, .02, 0], [0, 0, Math.PI], null, 0);
@@ -153,6 +157,8 @@ export function reach(J, side, target, bendAxis = V(0, -1, -.3)) {
 // ---------- renderer ----------
 export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1); renderer.setSize(W, H, false); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.localClippingEnabled = true;
+if (SOFT) { renderer.shadowMap.type = THREE.VSMShadowMap; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; }
+const envTex = SOFT ? new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), .04).texture : null;
 export const camera = new THREE.PerspectiveCamera(60, W / H, .05, 3000);
 const BASEFOV = PORT ? 2 * Math.atan(Math.tan(23 * Math.PI / 180) / (W / H)) * 180 / Math.PI : 46;
 camera.fov = BASEFOV; camera.updateProjectionMatrix();
@@ -160,7 +166,7 @@ const composer = new EffectComposer(renderer); const rp = new RenderPass(new THR
 // soft contact shading in corners / where objects meet the ground (objects stop looking 'pasted on')
 const gtao = new GTAOPass(new THREE.Scene(), camera, W, H); gtao.blendIntensity = 1; gtao.updateGtaoMaterial({ radius: .9, distanceExponent: 1.5, thickness: 1, scale: 1, samples: 12 }); gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 }); if (PQ.get('lite') !== '1') composer.addPass(gtao); // lite=1: no contact shading (faster cloud renders)
 composer.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }', fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec4 c = texture2D(tDiffuse, vUv); if (any(isnan(c)) || any(isinf(c))) { c = texture2D(tDiffuse, vUv + vec2(.002,0.)); if (any(isnan(c)) || any(isinf(c))) c = vec4(0.,0.,0.,1.); } gl_FragColor = clamp(c, 0., 3.); }' }));
-export const bloom = new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), .5, .45, .96); composer.addPass(bloom); composer.addPass(new OutputPass());
+export const bloom = new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), .5, .45, .96); if (SOFT) bloom.strength = .12; composer.addPass(bloom); composer.addPass(new OutputPass());
 let shake = 0; export const setShake = v => { shake = v; }; const lastTgt = new THREE.Vector3();
 // landscape: pull camera back a bit so wide framing keeps subject
 export function setCam(pos, tgt, t = 0, o = {}) {
@@ -174,8 +180,9 @@ const prepped = new WeakSet(), _d = new THREE.Vector3();
 function prepShadows(scene) {
   scene.traverse(o => {
     if (o.isMesh && !o.userData.isOutline && !o.isPoints) { const m = o.material; const solid = m && !m.transparent && (m.isMeshToonMaterial || m.isMeshStandardMaterial || m.isMeshLambertMaterial); o.castShadow = !!solid && m.side !== THREE.BackSide && !o.userData.noShadow; o.receiveShadow = !!(m && (m.isMeshToonMaterial || m.isMeshStandardMaterial || m.isMeshLambertMaterial)); }
-    if (o.isDirectionalLight && !o.userData.noShadow) { o.castShadow = true; o.shadow.mapSize.set(2048, 2048); o.shadow.bias = -.0006; o.shadow.normalBias = .03; o.shadow.radius = 3; if (!o.target.parent) scene.add(o.target); }
+    if (o.isDirectionalLight && !o.userData.noShadow) { o.castShadow = true; o.shadow.mapSize.set(2048, 2048); o.shadow.bias = -.0006; o.shadow.normalBias = .03; o.shadow.radius = SOFT ? 14 : 3; if (SOFT) { o.shadow.blurSamples = 20; o.shadow.mapSize.set(2048, 2048); o.shadow.bias = -.0004; } if (!o.target.parent) scene.add(o.target); }
   });
+  if (SOFT && !scene.environment) { scene.environment = envTex; scene.environmentIntensity = scene.userData.envI ?? .55; }
   prepped.add(scene);
 }
 export function draw(scene) {
