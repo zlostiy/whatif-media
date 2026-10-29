@@ -437,7 +437,7 @@ renderer.toneMappingExposure = 1;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE3.PCFSoftShadowMap;
 var dummy = new THREE3.Scene();
-var post = makePost(renderer, dummy, camera, W, H, { ssaa: GPU ? 2 : 1, ao: true, aoRadius: 2.5, aoThickness: 3, aoScale: 1.4, aoAmt: 0.75 });
+var post = makePost(renderer, dummy, camera, W, H, { ssaa: 1, msaa: 4, ao: true, aoRadius: 2.5, aoThickness: 3, aoScale: 1.4, aoAmt: 0.75 });
 post.bloom.strength = 0.2;
 post.bloom.threshold = 1.1;
 post.bloom.radius = 0.5;
@@ -533,7 +533,7 @@ function world(o = {}) {
   const sun = new THREE3.DirectionalLight(o.sunCol || "#fff1d6", o.sunI ?? 3);
   sun.position.set(...o.sunDir || [-60, 90, 50]);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(4096, 4096);
+  sun.shadow.mapSize.set(2048, 2048);
   const R = o.shadowR || 90;
   Object.assign(sun.shadow.camera, { left: -R, right: R, top: R, bottom: -R, near: 1, far: 600 });
   sun.shadow.bias = -4e-4;
