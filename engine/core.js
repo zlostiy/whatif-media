@@ -200,8 +200,8 @@ let BUBC = ['#1a1033', '#2b1f66', '#3a2a8a'];
 function drawBubbles(p) {
   bctx.clearRect(0, 0, BW, BH); if (p <= 0 || p >= 1) return;
   const cov = p < .5 ? eio(p * 2) : eio((1 - p) * 2);
-  if (cov < .03) return; // near the ends the circles would be sub-pixel specks (and their outline strokes leave dots) — draw nothing
-  for (let i = 0; i < 70; i++) { const x = rnd(i, 101) * BW, y = rnd(i, 102) * BH + (1 - cov) * 300 * (p < .5 ? 1 : -1), r = cov * (90 + rnd(i, 103) * 110); if (r < 3) continue; bctx.fillStyle = BUBC[i % 3]; bctx.beginPath(); bctx.arc(x, y, r, 0, 6.29); bctx.fill(); bctx.strokeStyle = 'rgba(255,255,255,.25)'; bctx.lineWidth = 4; bctx.beginPath(); bctx.arc(x - r * .3, y - r * .3, r * .5, 3.6, 4.6); bctx.stroke(); }
+  if (cov < .18) return; // near the ends the circles would be sub-pixel specks (and their outline strokes leave dots) — draw nothing
+  for (let i = 0; i < 70; i++) { const x = rnd(i, 101) * BW, y = rnd(i, 102) * BH + (1 - cov) * 300 * (p < .5 ? 1 : -1), r = cov * (90 + rnd(i, 103) * 110); if (r < 36) continue; /* no small specks */ bctx.fillStyle = BUBC[i % 3]; bctx.beginPath(); bctx.arc(x, y, r, 0, 6.29); bctx.fill(); bctx.strokeStyle = 'rgba(255,255,255,.25)'; bctx.lineWidth = 4; bctx.beginPath(); bctx.arc(x - r * .3, y - r * .3, r * .5, 3.6, 4.6); bctx.stroke(); }
 }
 export const fmtN = n => EN ? Math.round(n).toLocaleString('en-US') : Math.round(n).toLocaleString('ru-RU').replace(/[  ,]/g, ' ');
 export const fmtD = (n, d = 1) => EN ? n.toFixed(d) : n.toFixed(d).replace('.', ',');

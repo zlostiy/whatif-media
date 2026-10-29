@@ -397,10 +397,10 @@ function drawBubbles(p) {
   bctx.clearRect(0, 0, BW, BH);
   if (p <= 0 || p >= 1) return;
   const cov = p < 0.5 ? eio(p * 2) : eio((1 - p) * 2);
-  if (cov < 0.03) return;
+  if (cov < 0.18) return;
   for (let i = 0; i < 70; i++) {
     const x = rnd(i, 101) * BW, y = rnd(i, 102) * BH + (1 - cov) * 300 * (p < 0.5 ? 1 : -1), r = cov * (90 + rnd(i, 103) * 110);
-    if (r < 3) continue;
+    if (r < 36) continue;
     bctx.fillStyle = BUBC[i % 3];
     bctx.beginPath();
     bctx.arc(x, y, r, 0, 6.29);
