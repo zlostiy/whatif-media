@@ -788,7 +788,7 @@ function crowd(i0, n, cx, cz, w, d, fx, fz, t, o = {}) {
     const x = cx - w / 2 + (c + 0.5) * sx + (rnd2(i0 + j, 1) - 0.5) * sx * 0.35, z = cz - d / 2 + (r + 0.5) * sz + (rnd2(i0 + j, 2) - 0.5) * sz * 0.35;
     p.position.set(x, o.y ?? 0.3, z);
     p.rotation.y = Math.atan2(fx - x, fz - z);
-    const sg = o.signs && j % 3 === 0;
+    const sg = !!(o.signs && j % 3 === 0);
     p.userData.sign.visible = sg;
     if (sg) p.userData.board.material = o.red && rnd2(j, 7) < o.red ? SIGNR : SIGNG;
     posePerson(p, o.cheer ? { armsUp: 0.4 + 0.4 * Math.abs(Math.sin(t * 4 + j)) } : o.wave && j % 4 === 0 ? { wave: t * 3 + j } : {});
@@ -889,7 +889,7 @@ function render(s, lt, k, t) {
   if (sc === "trees") {
     saplings.forEach((p) => {
       const a2 = clamp(k * 1.3 - p.userData.d);
-      p.scale.setScalar(Math.max(1e-3, lerp(0.15, 1, eio(a2))));
+      p.scale.setScalar(lerp(0.45, 1, eio(a2)));
     });
     let i = 0;
     for (let r2 = 0; r2 < 4; r2++) for (let c = 0; c < 8; c++) {
@@ -908,16 +908,16 @@ function render(s, lt, k, t) {
     const a2 = clamp(((sc === "end" ? 1 : k * 1.4) - p.userData.d * 0.8) / 0.5);
     p.scale.setScalar(Math.max(1e-3, eio(a2)));
   });
-  crowd(0, 80, 0, 24, 48, 18, 0, -6, t, { signs: true, red: 0.5 });
+  crowd(0, 80, 0, 24, 48, 18, 0, -6, t, {});
   if (sc === "end") return shoot(S, new V3(-20, 120, 150), new V3(0, 0, -10), { subject: new V3(0, 3, -10), fov: 30, aper: 24, bandW: 0.12 });
-  const r = lerp(30, 130, u), h = lerp(14, 70, u), a = lerp(0.9, 1.15, u);
+  const r = lerp(55, 140, u), h = lerp(24, 75, u), a = lerp(0.9, 1.15, u);
   return shoot(S, new V3(Math.cos(a) * r, h, -12 + Math.sin(a) * r), new V3(0, 3, -10), { subject: new V3(0, 3, -10), fov: 32, aper: lerp(10, 24, u), bandW: lerp(0.075, 0.1, u) });
 }
 function cards2(s, lt, k) {
   const a = sm(0.15, 0.45, lt);
   if (s.card === "money") return card(330, `<div class="t">EcoGPT Pro</div><div class="v">$10 <small>${L("/\u043C\u0435\u0441", "/mo")}</small></div><div class="n">${L("ChatGPT Plus \u2014 $20 \xB7 1 \u043C\u043B\u043D \u0441\u043A\u0430\u0447\u0438\u0432\u0430\u043D\u0438\u0439", "ChatGPT Plus \u2014 $20 \xB7 1M downloads")}</div>`, a);
   if (s.scene === "nda") return card(330, `<div class="t">${L("\u043E\u0442\u0432\u0435\u0442 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0438", "the company's answer")}</div><div class="v" style="font-size:64px">${L("\u041F\u041E\u0414\u041F\u0418\u0428\u0418\u0422\u0415 NDA", "SIGN AN NDA")}</div><div class="n">VRT NWS, 2026</div>`, sm(0.4, 0.7, k));
-  if (s.scene === "scam") return card(330, `<div class="t">${L("\u0432 \u043E\u0442\u0437\u044B\u0432\u0430\u0445", "in the reviews")}</div><div class="v" style="color:#ff4b5c">${L("\u0421\u041A\u0410\u041C?", "SCAM?")}</div>`, sm(0.3, 0.5, k));
+  if (s.scene === "scam") return card(330, `<div class="t">${L("\u0432 \u043E\u0442\u0437\u044B\u0432\u0430\u0445", "in the reviews")}</div><div class="v" style="color:#ff4b5c">${L("\u0421\u041A\u0410\u041C?", "SCAM?")}</div>`, sm(0.62, 0.8, k));
   return "";
 }
 start({ render, cards: cards2, mins: { hook: 3.2, scam: 4, wow: 7, end: 4 }, bubbles: ["#4fb35a", "#f2c230", "#1d1d22"] });

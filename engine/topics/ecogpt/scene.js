@@ -77,7 +77,7 @@ function crowd(i0, n, cx, cz, w, d, fx, fz, t, o = {}) {
   for (let j = 0; j < n; j++) { const p = P[i0 + j]; if (!p) break; const c = j % cols, r = Math.floor(j / cols);
     const x = cx - w / 2 + (c + .5) * sx + (rnd(i0 + j, 1) - .5) * sx * .35, z = cz - d / 2 + (r + .5) * sz + (rnd(i0 + j, 2) - .5) * sz * .35;
     p.position.set(x, o.y ?? .3, z); p.rotation.y = Math.atan2(fx - x, fz - z);
-    const sg = o.signs && (j % 3 === 0); p.userData.sign.visible = sg; if (sg) p.userData.board.material = o.red && rnd(j, 7) < o.red ? SIGNR : SIGNG;
+    const sg = !!(o.signs && (j % 3 === 0)); p.userData.sign.visible = sg; if (sg) p.userData.board.material = o.red && rnd(j, 7) < o.red ? SIGNR : SIGNG;
     posePerson(p, o.cheer ? { armsUp: .4 + .4 * Math.abs(Math.sin(t * 4 + j)) } : o.wave && j % 4 === 0 ? { wave: t * 3 + j } : {}); }
   return i0 + n;
 }
@@ -140,23 +140,23 @@ function render(s, lt, k, t) {
     return shoot(S, new V3(lerp(20, 16, u), lerp(22, 26, u), lerp(42, 46, u)), new V3(0, 4, -8), { subject: new V3(0, 4, -12), fov: 32, aper: 14 });
   }
   if (sc === 'trees') {  // savanna: people plant saplings, they grow slowly
-    saplings.forEach(p => { const a = clamp((k * 1.3 - p.userData.d)); p.scale.setScalar(Math.max(.001, lerp(.15, 1, eio(a)))); });
+    saplings.forEach(p => { const a = clamp((k * 1.3 - p.userData.d)); p.scale.setScalar(lerp(.45, 1, eio(a))); });
     let i = 0; for (let r = 0; r < 4; r++) for (let c = 0; c < 8; c++) { const p = P[i++]; p.position.set(AX - 21 + c * 6, .3, AZ - 9 + r * 6); p.rotation.y = -.6; p.userData.sign.visible = false; posePerson(p, { armsUp: .15 + .15 * Math.abs(Math.sin(t * 2 + i)) }); }
     return shoot(S, new V3(AX + lerp(30, 24, u), 26, AZ + lerp(46, 40, u)), new V3(AX, 1, AZ), { subject: new V3(AX + 2, 1.2, AZ + 2), fov: 32, aper: 14 });
   }
   // WOW (wow/end): dusk, the HQ glows, coins pile up, a forest rises around it, camera pulls far back
   sky(1); setCoins(60); posePerson(boss, { armsUp: .3 });
   forest.forEach(p => { const a = clamp(((sc === 'end' ? 1 : k * 1.4) - p.userData.d * .8) / .5); p.scale.setScalar(Math.max(.001, eio(a))); });
-  crowd(0, 80, 0, 24, 48, 18, 0, -6, t, { signs: true, red: .5 });
+  crowd(0, 80, 0, 24, 48, 18, 0, -6, t, {});
   if (sc === 'end') return shoot(S, new V3(-20, 120, 150), new V3(0, 0, -10), { subject: new V3(0, 3, -10), fov: 30, aper: 24, bandW: .12 });
-  const r = lerp(30, 130, u), h = lerp(14, 70, u), a = lerp(.9, 1.15, u);
+  const r = lerp(55, 140, u), h = lerp(24, 75, u), a = lerp(.9, 1.15, u);
   return shoot(S, new V3(Math.cos(a) * r, h, -12 + Math.sin(a) * r), new V3(0, 3, -10), { subject: new V3(0, 3, -10), fov: 32, aper: lerp(10, 24, u), bandW: lerp(.075, .1, u) });
 }
 function cards(s, lt, k) {
   const a = sm(.15, .45, lt);
   if (s.card === 'money') return card(330, `<div class="t">EcoGPT Pro</div><div class="v">$10 <small>${L('/мес', '/mo')}</small></div><div class="n">${L('ChatGPT Plus — $20 · 1 млн скачиваний', 'ChatGPT Plus — $20 · 1M downloads')}</div>`, a);
   if (s.scene === 'nda') return card(330, `<div class="t">${L('ответ компании', "the company's answer")}</div><div class="v" style="font-size:64px">${L('ПОДПИШИТЕ NDA', 'SIGN AN NDA')}</div><div class="n">VRT NWS, 2026</div>`, sm(.4, .7, k));
-  if (s.scene === 'scam') return card(330, `<div class="t">${L('в отзывах', 'in the reviews')}</div><div class="v" style="color:#ff4b5c">${L('СКАМ?', 'SCAM?')}</div>`, sm(.3, .5, k));
+  if (s.scene === 'scam') return card(330, `<div class="t">${L('в отзывах', 'in the reviews')}</div><div class="v" style="color:#ff4b5c">${L('СКАМ?', 'SCAM?')}</div>`, sm(.62, .8, k));
   return '';
 }
 start({ render, cards, mins: { hook: 3.2, scam: 4, wow: 7, end: 4 }, bubbles: ['#4fb35a', '#f2c230', '#1d1d22'] });
