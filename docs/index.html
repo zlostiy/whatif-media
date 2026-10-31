@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><title>relay</title>
+<script>
+addEventListener('message', async e => {
+  if (!e.data || !e.data.relayUrl) return;
+  try { const b = await (await fetch(e.data.relayUrl)).arrayBuffer(); e.source.postMessage({ vid: b, name: e.data.name }, '*', [b]); }
+  catch (err) { e.source.postMessage({ relayErr: String(err) }, '*'); }
+});
+parent.postMessage({ relayReady: 1 }, '*');
+</script>
