@@ -159,4 +159,4 @@ function cards(s, lt, k) {
   if (s.scene === 'scam') return card(330, `<div class="t">${L('в отзывах', 'in the reviews')}</div><div class="v" style="color:#ff4b5c">${L('СКАМ?', 'SCAM?')}</div>`, sm(.62, .8, k));
   return '';
 }
-start({ render, cards, mins: { hook: 3.2, scam: 4, wow: 7, end: 4 }, bubbles: ['#4fb35a', '#f2c230', '#1d1d22'] });
+start({ render, cards, mins: { hook: 3.2, scam: 4, wow: 5, end: 4 }, bubbles: ['#4fb35a', '#f2c230', '#1d1d22'] });
