@@ -1,0 +1,208 @@
+{
+ "lang": "en",
+ "dur": 63.455,
+ "shots": [
+  {
+   "t0": 0.0,
+   "v0": 0.7,
+   "v1": 6.118,
+   "phr": [
+    [
+     0.7,
+     6.118,
+     "“We're going to crash into the ground.” The last words from a private jet over Florida."
+    ]
+   ],
+   "t1": 6.118
+  },
+  {
+   "t0": 6.118,
+   "v0": 6.818,
+   "v1": 15.218,
+   "phr": [
+    [
+     6.818,
+     8.015,
+     "November first."
+    ],
+    [
+     8.465,
+     10.786,
+     "A Learjet 60 takes off from Austin,"
+    ],
+    [
+     11.006,
+     11.675,
+     "Texas,"
+    ],
+    [
+     11.895,
+     13.326,
+     "bound for the Bahamas."
+    ],
+    [
+     13.776,
+     15.218,
+     "Nine people on board."
+    ]
+   ],
+   "t1": 15.218
+  },
+  {
+   "t0": 15.218,
+   "v0": 16.018,
+   "v1": 23.395,
+   "phr": [
+    [
+     16.018,
+     17.604,
+     "Thirty-five thousand feet."
+    ],
+    [
+     18.054,
+     19.778,
+     "The pilots report turbulence,"
+    ],
+    [
+     19.998,
+     20.623,
+     "icing,"
+    ],
+    [
+     20.843,
+     21.777,
+     "heavy rain."
+    ],
+    [
+     22.227,
+     23.395,
+     "They ask to climb."
+    ]
+   ],
+   "t1": 23.395
+  },
+  {
+   "t0": 23.395,
+   "v0": 23.995,
+   "v1": 31.719,
+   "phr": [
+    [
+     23.995,
+     25.664,
+     "Then the jet starts to fall."
+    ],
+    [
+     26.114,
+     27.581,
+     "Ten thousand feet a minute."
+    ],
+    [
+     28.031,
+     29.395,
+     "Then thirty thousand."
+    ],
+    [
+     29.845,
+     31.719,
+     "Beyond what it was built to take."
+    ]
+   ],
+   "t1": 31.719
+  },
+  {
+   "t0": 31.719,
+   "v0": 32.419,
+   "v1": 37.878,
+   "phr": [
+    [
+     32.419,
+     33.069,
+     "Mayday."
+    ],
+    [
+     33.519,
+     35.111,
+     "Sixty degrees of bank."
+    ],
+    [
+     35.561,
+     37.878,
+     "The controller asks them to keep talking."
+    ]
+   ],
+   "t1": 37.878
+  },
+  {
+   "t0": 37.878,
+   "v0": 38.778,
+   "v1": 40.367,
+   "phr": [
+    [
+     38.778,
+     40.367,
+     "Then the radio goes silent."
+    ]
+   ],
+   "t1": 40.978
+  },
+  {
+   "t0": 40.978,
+   "v0": 42.578,
+   "v1": 49.219,
+   "phr": [
+    [
+     42.578,
+     43.543,
+     "Twelve fifty."
+    ],
+    [
+     43.993,
+     46.809,
+     "The jet slams into a neighborhood in Greenacres,"
+    ],
+    [
+     47.029,
+     49.219,
+     "feet from homes and passing cars."
+    ]
+   ],
+   "t1": 49.219
+  },
+  {
+   "t0": 49.219,
+   "v0": 50.019,
+   "v1": 55.229,
+   "phr": [
+    [
+     50.019,
+     53.046,
+     "Six hundred people are evacuated nearby."
+    ],
+    [
+     53.496,
+     55.229,
+     "The cause has not been named."
+    ]
+   ],
+   "t1": 55.229
+  },
+  {
+   "t0": 55.229,
+   "v0": 56.629,
+   "v1": 59.255,
+   "phr": [
+    [
+     56.629,
+     57.743,
+     "Nine on board."
+    ],
+    [
+     58.193,
+     59.255,
+     "No survivors."
+    ]
+   ],
+   "t1": 63.45487500000001
+  }
+ ]
+}
