@@ -865,6 +865,10 @@ var conf = new THREE.Points(confGeo, new THREE.PointsMaterial({ size: 0.06, vert
 conf.frustumCulled = false;
 conf.visible = false;
 conf.layers.set(31);
+Object.defineProperty(conf, "visible", { get: () => false, set: () => {
+} });
+Object.defineProperty(rain, "visible", { get: () => false, set: () => {
+} });
 function updConf(t, c, area = 3) {
   for (let i = 0; i < confN; i++) {
     confPos[i * 3] = c.x + (rnd(i, 1) - 0.5) * area + Math.sin(t * 2 + i) * 0.1;
