@@ -111,8 +111,10 @@ function render(s, lt, k, t) {
     return shoot(S2, new V3(lerp(-30, 10, k), 130, 300), new V3(30, 50, 40), { subject: new V3(60, 40, 80), fov: 38, aper: 18 }); }
   // WOW: evening, six planes leave the airport in all directions; the camera rises over the city
   const u = eio(clamp(lt / Math.max(4, s.dur)));
-  planes.forEach((p, i) => { const a = -Math.PI * .1 - i * Math.PI * .16, d = clamp(u * 1.3 - i * .05) * 420; p.position.set(Math.cos(a) * d * .9 + (i - 2.5) * 20, 6 + d * .25, -520 + 40 + Math.sin(a) * d); p.rotation.set(-.12, Math.atan2(Math.cos(a), Math.sin(a)) + Math.PI, 0); });
-  return shoot(S1, new V3(lerp(60, 90, u), lerp(90, 170, u), lerp(-200, -120, u)), new V3(0, lerp(30, 80, u), -520), { subject: new V3(0, 40, -500), fov: 48, aper: 22 });
+  const pp = (i, ss) => { if (ss < 300) return [-330 + ss, 10 + Math.max(0, ss - 180) * .18, -480]; const e = ss - 300; return [-30 + e, 10 + 120 * .18 + e * (.55 + (i % 3) * .1) * clamp(e / 120 + .3), -480 - (i - 2.5) * .7 * e * clamp(e / 300)]; };
+  planes.forEach((p, i) => { const v = clamp(lt / Math.max(4, s.dur)), st = .02 + i * .14, q = (v - st) / .45; const ss = q < 0 ? q * 130 / .14 * .45 : Math.min(q, 1) * 400 + Math.min(q, 1) ** 2 * 700; const A = pp(i, ss), B2 = pp(i, ss + 2);
+    p.scale.setScalar(2); p.position.set(A[0], A[1], A[2]); p.rotation.set(0, Math.atan2(B2[0] - A[0], B2[2] - A[2]), 0); p.rotateX(-Math.atan2(B2[1] - A[1], Math.hypot(B2[0] - A[0], B2[2] - A[2]))); });
+  return shoot(S1, new V3(lerp(-450, -420, u), lerp(40, 70, u), lerp(-400, -390, u)), new V3(100, lerp(40, 100, u), -490), { subject: new V3(0, 40, -480), fov: 48, aper: 22 });
 }
 function cards(s, lt, k) {
   const a = sm(.2, .5, lt);
@@ -122,4 +124,4 @@ function cards(s, lt, k) {
     return card(250, `<div class="t">${L('вылет', 'departures')}</div>${rows}`, a); }
   return '';
 }
-start({ render, cards, mins: { alarm: 4.5, wow: 8 }, bubbles: ['#e8463c', '#ffd23f', '#2f5fb3'] });
+start({ render, cards, cap: s => s.scene === 'wow' ? { bottom: 560 } : null, mins: { alarm: 4.5, wow: 8 }, bubbles: ['#e8463c', '#ffd23f', '#2f5fb3'] });

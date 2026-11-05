@@ -662,7 +662,15 @@ for (let i = 0; i < 16; i++) {
   building(S, 16, 14, 12 + i % 2 * 5, x, 18, { wall: STONE[(i + 1) % 4], seed: 330 + i, roof: "#4f5560", trim: "#7d776d", bay: 5, clutter: false });
 }
 var cafe = grp(S, 10, 0, -16);
-rbox(cafe, 16, 9, 14, "#6b2a2a", 0, 0, 0);
+{
+  const CW = "#6b2a2a";
+  rbox(cafe, 16, 9, 0.5, CW, 0, 0, -7);
+  for (const x of [-7.75, 7.75]) rbox(cafe, 0.5, 9, 14, CW, x, 0, 0);
+  rbox(cafe, 16, 0.5, 14, CW, 0, 9, 0);
+  rbox(cafe, 16, 3.4, 0.5, CW, 0, 5.6, 7);
+  for (const x of [-7, 7]) rbox(cafe, 2, 9, 0.5, CW, x, 0, 7);
+  rbox(cafe, 12, 0.6, 0.5, CW, 0, 0, 7);
+}
 rbox(cafe, 12, 5, 0.3, M("#bfe3f2", { roughness: 0.1, transparent: true, opacity: 0.12 }), 0, 0.6, 7.1);
 {
   const pl = new THREE.PointLight("#ffe2b0", 60, 16, 1.4);
